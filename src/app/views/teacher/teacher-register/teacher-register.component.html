@@ -1,0 +1,51 @@
+<div class="container text-center">
+  <div class="row justify-content-center">
+    <div class="col-8">
+      <br>
+      <mat-card class="mat-elevation-z8">
+        <mat-card-title>Registro De Maestros</mat-card-title>
+        <mat-card-content>
+          <div class="container text-center" [formGroup]="teacherForm">
+            <div class="row align-items-center">
+              <div class="col-md-8 offset-md-2">
+                <mat-form-field class="full-width" appearance="fill">
+                  <mat-label>Nombre</mat-label>
+                  <input autocomplete="off" type="text" matInput placeholder="" formControlName="name">
+                  <mat-error *ngIf="checkError('name', 'required')" >El nombre es requerido</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="row align-items-center">
+              <div class="col-md-4 offset-md-2">
+                <mat-form-field class="full-width" appearance="fill">
+                  <mat-label>Grado </mat-label>
+                  <mat-select name="grado" formControlName="assignedSchoolGrade">
+                    <mat-option *ngFor="let item of listadoGrados" [value]="item.grado">
+                      {{item.nombre}}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="checkError('assignedSchoolGrade', 'required')" >Seleccione grado a cargo</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-md-4">
+                <mat-form-field class="full-width" appearance="fill">
+                  <mat-label>Fecha de Nacimiento</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="birth">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                  <mat-error *ngIf="checkError('birth', 'required')" >Fecha de nacimiento es requerida</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="saveTeacher()">GUARDAR
+            <mat-icon aria-hidden="false" aria-label="delete" fontIcon="save"></mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<br>

@@ -1,0 +1,59 @@
+<div class="container text-center">
+  <div class="row justify-content-center">
+    <div class="col-8">
+
+      <mat-card class="mat-elevation-z8">
+        <mat-card-title>Listado De Maestros</mat-card-title>
+        <mat-card-content>
+          <div class="row mb-4">
+            <div class="col-md-3">
+
+              <button mat-raised-button color="primary" class="full-width" (click)="exportToExcel()">
+                Exportar Excel
+                <mat-icon aria-hidden="false" aria-label="delete" fontIcon="note"></mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="table-responsive  mat-elevation-z8 teacher-container">
+                <mat-table [dataSource]="teacherList">
+                  <ng-container matColumnDef="teacher">
+                    <mat-header-cell *matHeaderCellDef> Nombre del maestro </mat-header-cell>
+                    <mat-cell *matCellDef="let student"> {{student.name}} {{student.teacher}}</mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="assignedSchoolGrade">
+                    <mat-header-cell *matHeaderCellDef> Grado </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student"> {{nameSchoolGrade(student.assignedSchoolGrade) }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="edit">
+                    <mat-header-cell *matHeaderCellDef>Editar </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student">
+                      <button mat-icon-button >
+                        <mat-icon  (click)="navigateEditStudent(student.uid)" fontIcon="edit" style="color: #3C4B64" >edit</mat-icon>
+                      </button>
+
+                    </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="delete">
+                    <mat-header-cell *matHeaderCellDef>Eliminar </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student">
+                      <button mat-icon-button >
+                        <mat-icon  (click)="dialogComfirmDelete(student.uid)" fontIcon="delete" style="color: #ED5E68" >delete</mat-icon>
+                      </button>
+
+                    </mat-cell>
+                  </ng-container>
+                  <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                </mat-table>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<br>

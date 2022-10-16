@@ -1,0 +1,12 @@
+.teacher-container {
+  max-height: 380px;
+  overflow: auto;
+}
+
+.mat-header-row {
+  font-weight: bold;
+}
+
+.mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary {
+  background-color: #00AC47;
+}

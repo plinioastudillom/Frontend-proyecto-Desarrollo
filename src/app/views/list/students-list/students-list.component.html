@@ -1,0 +1,58 @@
+<div class="container text-center">
+  <div class="row justify-content-center">
+    <div class="col-8">
+
+      <mat-card class="mat-elevation-z8">
+        <mat-card-title>Listado De Alumnos</mat-card-title>
+        <mat-card-content>
+          <div class="row mb-4">
+            <div class="col-md-3">
+
+              <button mat-raised-button color="primary" class="full-width" (click)="exportToExcel()">
+                Exportar Excel
+                <mat-icon aria-hidden="false" aria-label="delete" fontIcon="note"></mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="table-responsive  mat-elevation-z8 student-container">
+                <mat-table [dataSource]="studentList">
+                  <ng-container matColumnDef="student">
+                    <mat-header-cell *matHeaderCellDef> Nombre del Alumno </mat-header-cell>
+                    <mat-cell *matCellDef="let student"> {{student.name}} {{student.lastname}}</mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="teacher">
+                    <mat-header-cell *matHeaderCellDef> Maestro a Cargo </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student"> </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="grade">
+                    <mat-header-cell *matHeaderCellDef> Grado </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student"> {{nameSchoolGrade(student.schoolGrade) }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="edit">
+                    <mat-header-cell *matHeaderCellDef>Editar </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student">
+                      <mat-icon (click)="navigateEditStudent(student._id)" aria-hidden="false" aria-label="Editar"
+                        fontIcon="edit" style="color: #3C4B64"></mat-icon>
+                    </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="delete">
+                    <mat-header-cell *matHeaderCellDef>Eliminar </mat-header-cell>
+                    <mat-cell mat-cell *matCellDef="let student">
+                      <mat-icon (click)="dialogComfirmDelete(student._id)" aria-hidden="false" aria-label="delete"
+                        fontIcon="delete" style="color: #ED5E68;"></mat-icon>
+                    </mat-cell>
+                  </ng-container>
+                  <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                </mat-table>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<br>
