@@ -49,7 +49,7 @@ const routes: Routes = [
         path: 'estudiantes',
         loadChildren: () =>
           import('./views/registro-estudiantes/registro-estudiantes.module').then((m) => m.RegistroEstudiantesModule),
-          canActivate: [ValidarSesionGuard]
+          // canActivate: [ValidarSesionGuard]
       },
       {
         path: 'listado',
