@@ -24,11 +24,11 @@
                   </ng-container>
                   <ng-container matColumnDef="teacher">
                     <mat-header-cell *matHeaderCellDef> Maestro a Cargo </mat-header-cell>
-                    <mat-cell mat-cell *matCellDef="let student"> </mat-cell>
+                    <mat-cell mat-cell *matCellDef="let student">{{student?.teacher?.name}} </mat-cell>
                   </ng-container>
                   <ng-container matColumnDef="grade">
                     <mat-header-cell *matHeaderCellDef> Grado </mat-header-cell>
-                    <mat-cell mat-cell *matCellDef="let student"> {{nameSchoolGrade(student.schoolGrade) }} </mat-cell>
+                    <mat-cell mat-cell *matCellDef="let student"> {{nameSchoolGrade(student?.teacher?.assignedSchoolGrade) }} </mat-cell>
                   </ng-container>
                   <ng-container matColumnDef="edit">
                     <mat-header-cell *matHeaderCellDef>Editar </mat-header-cell>

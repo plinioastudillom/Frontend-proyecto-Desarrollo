@@ -3,12 +3,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
+import { throws } from 'assert';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/core/service/api.service';
 import Swal from 'sweetalert2';
 import { DocumentTypes } from '../../core/models/IdocumentType';
 import { Student } from '../../core/models/Istudent';
 import { Teacher } from '../../core/models/Iteacher';
+
 
 @Component({
   selector: 'app-registro-estudiantes',
@@ -23,10 +25,10 @@ export class RegistroEstudiantesComponent implements OnInit {
   public teachers: Teacher[] = [];
   public documentTypes: DocumentTypes[] = [];
   public documents: any[] = [];
-  displayedColumns = ['documentType', 'view'];
+  displayedColumns = ['documentType', 'view', 'delete', 'print'];
   public showDocument = false;
-
-
+  public isLocal = false;
+  public extension: string = '';
   studentId!: any;
   constructor(
     private api: ApiService,
@@ -49,9 +51,9 @@ export class RegistroEstudiantesComponent implements OnInit {
     return this.fb.group({
       name: [data?.name || null, [Validators.required]],
       lastname: [data?.lastname || null, [Validators.required]],
-      teacher: [data?._id || null, [Validators.required]],
+      teacher: [data?.teacher._id || null, [Validators.required]],
       documentType: null,
-      img: [data?.img || null],
+      img: null,
     });
   }
 
@@ -72,7 +74,9 @@ export class RegistroEstudiantesComponent implements OnInit {
   guardarRegistro() {
     this.api.post('students', this.estudianteFormulario.value).subscribe(
       (res: any) => {
+        this.studentId = res._id;
         this.toastr.success('SATISFACTORIO', 'REGISTRO GUARDADO EXISTOSAMENTE');
+        this.setImageStudent();
         this.estudianteFormulario.reset();
       },
       (error: HttpErrorResponse) => {
@@ -82,41 +86,67 @@ export class RegistroEstudiantesComponent implements OnInit {
     );
   }
 
-  guardarImagen() {
+  editarEstudiante(){
+    this.api.put(`students/${this.studentId}`, this.estudianteFormulario.value).subscribe(
+      (res: any) => {
+        this.toastr.success('SATISFACTORIO', 'REGISTRO EDITADO EXISTOSAMENTE');
+        this.setImageStudent();
+        this.estudianteFormulario.reset();
+      },
+      (error: HttpErrorResponse) => {
+        error.status === 404;
+        this.toastr.error('Error!', error.error.msg);
+      }
+    );
+  }
+
+  guardarImagen(doc: any) {
     const body: any = new FormData();
-    body.append('archivo', this.imagenSubir);
+    body.append('archivo', doc.image);
     this.api.post('uploads', body).subscribe(
       (res: any) => {
-        this.estudianteFormulario.patchValue({
-          img: res.nombre,
-        });
-        this.guardarRegistro();
+        this.saveImageStudent(doc, res.nombre);
       },
       (error: HttpErrorResponse) => {
         this.toastr.error('Error!', error.error.msg);
       }
     );
   }
+
   guardar() {
     if (this.estudianteFormulario.invalid) {
       this.estudianteFormulario.markAllAsTouched();
       return;
     }
-    if (this.imagenSubir == null) {
-      Swal.fire({
-        title: 'ERROR',
-        icon: 'error',
-        text: 'DEBE ADJUNTAR UN CERTIFICADO',
-      });
-      return;
-    }
-    this.guardarImagen();
+    (this.studentId)?this.editarEstudiante(): this.guardarRegistro();
+  }
+
+  setImageStudent(){
+    this.documents.filter(doc => doc.image != null).forEach(doc => {
+      this.guardarImagen(doc);
+    });
+  }
+
+  saveImageStudent(doc: any, imageName: string){
+    this.api.post('studentDocuments', {
+      studenId: this.studentId,
+      documentId: doc.type.uid,
+      documentName: imageName
+    }).subscribe(
+      (res: any) => {
+        this.documents = [];
+      },
+      (error: HttpErrorResponse) => {
+        this.toastr.error('Error!', error.error.msg);
+      }
+    );
   }
 
   getStudent() {
     this.api.get(`students/${this.studentId}`).subscribe(
       (resp: any) => {
         this.estudianteFormulario = this.createFormGroup(resp);
+        this.getStudentDocument(this.studentId);
       },
       (error: HttpErrorResponse) => {
         // Si sucede un error
@@ -149,20 +179,78 @@ export class RegistroEstudiantesComponent implements OnInit {
     );
   }
 
+  getStudentDocument(student: string){
+    this.api.get(`studentDocuments/${student}`).subscribe(
+      (resp: any) => {
+        let docs: any[] = resp;
+        this.documents = docs.map((doc) => ({
+          type: doc.documentId,
+          image: null,
+          src: this.sanitizer.bypassSecurityTrustResourceUrl(
+            this.api.getPathImage()+doc.documentName
+          ),
+          show: false,
+          nameImage: doc.documentName
+        }));
+      },
+      (error: HttpErrorResponse) => {
+        // Si sucede un error
+        this.toastr.error(error.error.msg);
+      }
+    );
+  }
+
+
+  getImage(nameImage: string){
+    this.api.get(`uploads/students/${nameImage}`).subscribe(
+      (resp: any) => {
+        this.imgTemp =resp;
+      },
+      (error: HttpErrorResponse) => {
+        // Si sucede un error
+        this.toastr.error(error.error.msg);
+      }
+    );
+  }
+
+
   showImage(image: any) {
     image.show = !image.show;
     this.showDocument = !this.showDocument;
     this.imgTemp = null;
     if(image.show){
-      this.imgTemp = image.src;
+        this.imgTemp = image.src;
+        if(image.image)this.isLocal = true;
+        else {
+          this.isLocal = false;
+          this.extension =image.nameImage.substr(image.nameImage.lastIndexOf('.') + 1);
+        }
     }
   }
 
   deleteItem(itemToDelete: any): void {
     this.documents = this.documents.filter((item) => item !== itemToDelete);
+    this.toastr.error('Archivo eliminado correctamente');
+  }
+
+  deletePermanentlyImage(itemToDelete: any){
+    this.api.delete(`uploads/students/${itemToDelete.type._id}/${itemToDelete.nameImage}`).subscribe(
+      (resp: any) => {
+        this.deleteItem(itemToDelete);
+        this.toastr.error('Archivo eliminado correctamente');
+      },
+      (error: HttpErrorResponse) => {
+        this.toastr.error(error.error.msg);
+      }
+    );
   }
 
   public checkError = (controlName: string, errorName: string) => {
     return this.estudianteFormulario.controls[controlName].hasError(errorName);
   };
+
+
+  print(image: any) {
+    //printJS(this.api.getPathImage()+image.nameImage);
+  }
 }

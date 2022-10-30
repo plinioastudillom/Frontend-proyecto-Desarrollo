@@ -32,11 +32,15 @@ export class ApiService {
 
     put(url: string, payload?: any) {
         return this.http
-            .put(`${environment.apiUrl}/${url}`, payload);
+            .put(`${environment.apiUrl}/${url}`, payload, this.headers);
     }
 
     delete(url: string) {
         return this.http
             .delete(`${environment.apiUrl}/${url}`, this.headers);
+    }
+
+    getPathImage(){
+      return `${environment.apiUrl}/uploads/students/`
     }
 }

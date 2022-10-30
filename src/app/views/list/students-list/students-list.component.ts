@@ -72,22 +72,22 @@ export class StudentsListComponent implements OnInit {
   nameSchoolGrade(grade: any): string {
     let nameGrade = '';
     switch (grade) {
-      case 1:
+      case "1":
         nameGrade = 'Primero';
         break;
-      case 2:
+      case "2":
         nameGrade = 'Segundo';
         break;
-      case 3:
+      case "3":
         nameGrade = 'Tercero';
         break;
-      case 4:
+      case "4":
         nameGrade = 'Cuarto';
         break;
-      case 5:
+      case "5":
         nameGrade = 'Quinto';
         break;
-      case 6:
+      case "6":
         nameGrade = 'Sexto';
         break;
       default:

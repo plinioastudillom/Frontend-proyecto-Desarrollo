@@ -40,7 +40,10 @@
           </div>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveTeacher()">GUARDAR
+          <button *ngIf="!this.teacherId" mat-raised-button color="primary" (click)="saveTeacher()">GUARDAR
+            <mat-icon aria-hidden="false" aria-label="delete" fontIcon="save"></mat-icon>
+          </button>
+          <button *ngIf="this.teacherId" mat-raised-button color="primary" (click)="editTeacher()">EDITAR
             <mat-icon aria-hidden="false" aria-label="delete" fontIcon="save"></mat-icon>
           </button>
         </mat-card-actions>
