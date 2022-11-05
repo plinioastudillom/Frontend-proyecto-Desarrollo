@@ -15,6 +15,7 @@ import { StudentsListComponent } from './students-list/students-list.component';
 import { ListRoutingModule } from './list-routing.module';
 import {MatTableModule} from '@angular/material/table';
 import { TeacherListComponent } from './teacher-list/teacher-list.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 @NgModule({
   declarations: [
     StudentsListComponent,
@@ -35,7 +36,8 @@ import { TeacherListComponent } from './teacher-list/teacher-list.component';
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTableModule
+    MatTableModule,
+    MatProgressBarModule
   ]
 })
 export class ListModule { }

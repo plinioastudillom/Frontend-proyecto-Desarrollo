@@ -2,3 +2,37 @@
   max-height: 200px;
   overflow: auto;
 }
+
+.mat-column-documentType {
+  flex: 0 0 64% !important;
+  width: 64% !important;
+  text-align: left;
+}
+
+.mat-column-view {
+  flex: 0 0 12% !important;
+  width: 12% !important;
+  text-align: center;
+}
+
+.mat-column-delete {
+  flex: 0 0 12% !important;
+  width: 12% !important;
+  text-align: center;
+}
+
+.mat-column-print {
+  flex: 0 0 12% !important;
+  width: 12% !important;
+  text-align: center;
+}
+
+@print {
+	@page :footer {
+		display: none
+	}
+
+	@page :header {
+		display: none
+	}
+}

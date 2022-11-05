@@ -3,15 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { throws } from 'assert';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/core/service/api.service';
-import Swal from 'sweetalert2';
 import { DocumentTypes } from '../../core/models/IdocumentType';
 import { Student } from '../../core/models/Istudent';
 import { Teacher } from '../../core/models/Iteacher';
-
-
+import print from "print-js";
 @Component({
   selector: 'app-registro-estudiantes',
   templateUrl: './registro-estudiantes.component.html',
@@ -53,30 +50,74 @@ export class RegistroEstudiantesComponent implements OnInit {
       lastname: [data?.lastname || null, [Validators.required]],
       teacher: [data?.teacher._id || null, [Validators.required]],
       documentType: null,
-      img: null,
+      documents: null,
     });
   }
 
   cambiarImagen(file: any) {
     //this.imagenSubir = file.target.files[0];
     const { documentType } = this.estudianteFormulario.value;
-    this.documents.push({
-      type: documentType,
-      image: file.target.files[0],
-      src: this.sanitizer.bypassSecurityTrustResourceUrl(
-        URL.createObjectURL(file.target.files[0])
-      ),
-      show: false,
-    });
-    this.documents = [...this.documents];
+
+    let file2 = <File>file.target.files[0];
+    const reader = new FileReader();
+    let base64String = "";
+    reader.onload = (e: any) => {
+      //const bytes = e.target.result.split('base64,')[1];
+     // let byteArray = this.convertDataURIToBinary(reader.result);
+      let bynaryString: any = reader.result;
+      base64String = btoa(bynaryString);
+      this.documents.push({
+        type: documentType,
+        image: file.target.files[0],
+        src: this.sanitizer.bypassSecurityTrustResourceUrl(
+          URL.createObjectURL(file.target.files[0])
+        ),
+        show: false,
+        student_doc: base64String,
+        base64: base64String,
+        extension: file.target.files[0].type
+      });
+      //console.log(byteArray);
+      this.documents = [...this.documents];
+    };
+    reader.readAsBinaryString(file2);
+
+
+
+  }
+
+  convertDataURIToBinary(dataURI: any) {
+    var base64Index = dataURI.indexOf(';base64,') + ';base64,'.length;
+    var base64 = dataURI.substring(base64Index);
+    console.log(base64);
+    var raw = window.atob(base64);
+    var rawLength = raw.length;
+    var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+    for(let i = 0; i < rawLength; i++) {
+      array[i] = raw.charCodeAt(i);
+    }
+    return array;
+  }
+
+  convertDataURIToBinary2(dataURI: any) {
+    var base64Index = dataURI.indexOf(';base64,') + ';base64,'.length;
+    var base64 = dataURI.substring(base64Index);
+
+    return base64;
   }
 
   guardarRegistro() {
+    const docs = this.documents.map( doc => ({documentId: doc.type.uid, student_doc: doc.base64, extension: doc.extension}));
+    this.estudianteFormulario.patchValue({
+      documents: docs
+    });
+    //console.log(this.estudianteFormulario.value);
     this.api.post('students', this.estudianteFormulario.value).subscribe(
       (res: any) => {
         this.studentId = res._id;
         this.toastr.success('SATISFACTORIO', 'REGISTRO GUARDADO EXISTOSAMENTE');
-        this.setImageStudent();
+       // this.setImageStudent();
         this.estudianteFormulario.reset();
       },
       (error: HttpErrorResponse) => {
@@ -87,10 +128,14 @@ export class RegistroEstudiantesComponent implements OnInit {
   }
 
   editarEstudiante(){
+    const docs = this.documents.map( doc => ({documentId: doc.type._id || doc.type.uid, student_doc: doc.student_doc, extension: doc.extension}));
+    this.estudianteFormulario.patchValue({
+      documents: docs
+    });
     this.api.put(`students/${this.studentId}`, this.estudianteFormulario.value).subscribe(
       (res: any) => {
         this.toastr.success('SATISFACTORIO', 'REGISTRO EDITADO EXISTOSAMENTE');
-        this.setImageStudent();
+        //this.setImageStudent();
         this.estudianteFormulario.reset();
       },
       (error: HttpErrorResponse) => {
@@ -146,7 +191,13 @@ export class RegistroEstudiantesComponent implements OnInit {
     this.api.get(`students/${this.studentId}`).subscribe(
       (resp: any) => {
         this.estudianteFormulario = this.createFormGroup(resp);
-        this.getStudentDocument(this.studentId);
+        this.documents = resp.documents.map((doc: any) => ({
+          type: doc.documentId,
+          extension: doc.extension,
+          student_doc: doc.student_doc,
+          _id: doc._id,
+        }));
+        //this.getStudentDocument(this.studentId);
       },
       (error: HttpErrorResponse) => {
         // Si sucede un error
@@ -214,17 +265,26 @@ export class RegistroEstudiantesComponent implements OnInit {
   }
 
 
+
+
   showImage(image: any) {
     image.show = !image.show;
     this.showDocument = !this.showDocument;
     this.imgTemp = null;
     if(image.show){
-        this.imgTemp = image.src;
-        if(image.image)this.isLocal = true;
-        else {
-          this.isLocal = false;
-          this.extension =image.nameImage.substr(image.nameImage.lastIndexOf('.') + 1);
-        }
+        var byteArray = new Uint8Array(atob(image.student_doc).split("").map((char) => char.charCodeAt(0)));
+        const blob = new Blob([byteArray], {type: image.extension});
+
+        this.imgTemp =  this.sanitizer.bypassSecurityTrustResourceUrl(
+          window.URL.createObjectURL(blob)
+        );
+        //this.imgTemp = image.src;
+        this.isLocal = true;
+        // if(image.image)this.isLocal = true;
+        // else {
+        //   this.isLocal = false;
+        //   this.extension =image.nameImage.substr(image.nameImage.lastIndexOf('.') + 1);
+        // }
     }
   }
 
@@ -251,6 +311,17 @@ export class RegistroEstudiantesComponent implements OnInit {
 
 
   print(image: any) {
-    //printJS(this.api.getPathImage()+image.nameImage);
+    if(image.extension == "application/pdf"){
+      print({printable: image.student_doc, type: "pdf", base64: true, showModal: true});
+    }else{
+      let byteArray = new Uint8Array(atob(image.student_doc).split('').map((char) => char.charCodeAt(0)));
+      const blob = new Blob([byteArray], { type: image.extension });
+      let myImage = window.URL.createObjectURL(blob);
+      print({
+        printable: myImage,
+        type: 'image',
+        style: 'img {max-width:100%; height:auto};',
+      });
+    }
   }
 }

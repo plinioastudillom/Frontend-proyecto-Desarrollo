@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 
+
 @NgModule({
   declarations: [
     RegistroEstudiantesComponent

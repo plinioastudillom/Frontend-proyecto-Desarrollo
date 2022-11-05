@@ -94,7 +94,7 @@
                               </mat-cell>
                             </ng-container>
                             <ng-container matColumnDef="delete">
-                              <mat-header-cell *matHeaderCellDef> Ver </mat-header-cell>
+                              <mat-header-cell *matHeaderCellDef> Eliminar </mat-header-cell>
                               <mat-cell *matCellDef="let document">
                                 <button *ngIf="!document.nameImage"  mat-icon-button >
                                   <mat-icon  (click)="deleteItem(document)" fontIcon="delete" style="color: #ED5E68" >delete</mat-icon>
@@ -107,8 +107,8 @@
                             <ng-container matColumnDef="print">
                               <mat-header-cell *matHeaderCellDef> Imprimir </mat-header-cell>
                               <mat-cell *matCellDef="let document">
-                                <button *ngIf="document.nameImage"  mat-icon-button >
-                                  <mat-icon  (click)="print(document)" fontIcon="print" style="color: #3C4B64" >print</mat-icon>
+                                <button  mat-icon-button (click)="print(document)" >
+                                  <mat-icon  fontIcon="print" style="color: #3C4B64" >print</mat-icon>
                                 </button>
                               </mat-cell>
                             </ng-container>
@@ -119,10 +119,9 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div  *ngIf="showDocument" class="col-md-12">
+                      <div  *ngIf="showDocument" class="col-md-12" id="demo">
                         <object *ngIf="isLocal" [attr.data]="imgTemp" class="full-width" height="300"></object>
-                        <img *ngIf="!isLocal && extension != 'pdf'" [src]="imgTemp" alt="50px" style="width: 100%; height: 220px;">
-                        <embed *ngIf="!isLocal && extension == 'pdf'" [src]="imgTemp" width="100%" height="220px;"  type="application/pdf">
+
                       </div>
                     </div>
                   </div>

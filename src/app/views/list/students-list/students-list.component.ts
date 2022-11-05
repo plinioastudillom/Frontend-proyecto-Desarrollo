@@ -13,7 +13,7 @@ import * as XLSX from 'xlsx';
 export class StudentsListComponent implements OnInit {
   displayedColumns = ['student', 'teacher', 'grade', 'edit', 'delete'];
   studentList: any[] = [];
-
+  progressBarShow: boolean = false;
   constructor(
     private api: ApiService,
     private toastr: ToastrService,
@@ -25,12 +25,15 @@ export class StudentsListComponent implements OnInit {
   }
 
   getStudentList() {
+    this.progressBarShow = true;
     this.api.get('students').subscribe(
       (resp: any) => {
         this.studentList = resp.students;
+        this.progressBarShow = false;
       },
       (error: HttpErrorResponse) => {
         // Si sucede un error
+        this.progressBarShow = false;
         this.toastr.error(error.error.msg);
       }
     );
@@ -103,6 +106,11 @@ export class StudentsListComponent implements OnInit {
 		const wb: XLSX.WorkBook = XLSX.utils.book_new();
 		XLSX.utils.book_append_sheet(wb, ws, 'test');
 		XLSX.writeFile(wb, fileName);
+  }
+
+  getDocAttach(docs:any[]){
+    if(docs.length <= 0) return "";
+    return docs.map(doc => ({docName: doc.documentId.name}));
   }
 
 }
