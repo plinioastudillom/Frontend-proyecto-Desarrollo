@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 export class StudentsListComponent implements OnInit {
   displayedColumns = ['student', 'teacher', 'grade', 'edit', 'delete'];
   studentList: any[] = [];
+  documentTypes: any[]=[];
   progressBarShow: boolean = false;
   constructor(
     private api: ApiService,
@@ -29,6 +30,7 @@ export class StudentsListComponent implements OnInit {
     this.api.get('students').subscribe(
       (resp: any) => {
         this.studentList = resp.students;
+        this.documentTypes = resp.typeDocuments;
         this.progressBarShow = false;
       },
       (error: HttpErrorResponse) => {
@@ -101,16 +103,31 @@ export class StudentsListComponent implements OnInit {
 
   exportToExcel(){
     const fileName = `ListadoEstudiantes${new Date().toJSON().slice(0,10).replace(/-/g,'/')}.xlsx`;
-    const report = this.studentList.map(student => ({Nombre: student.name, Apellido: student.lastname, Grado: student.grade}))
+    const report = this.studentList.map((student) => ({
+      Nombre: student.name,
+      Apellido: student.lastname,
+      Grado: this.nameSchoolGrade(student.teacher.assignedSchoolGrade),
+      Maestro_A_Cargo: student.teacher.name,
+      Adjuntos: this.getDocAttach(student.documents),
+      No_Adjuntos: this.getDocNoAttach(student.documents)
+    }));
 		const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(report);
 		const wb: XLSX.WorkBook = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, 'test');
+		XLSX.utils.book_append_sheet(wb, ws, 'Alumnos');
 		XLSX.writeFile(wb, fileName);
   }
 
   getDocAttach(docs:any[]){
     if(docs.length <= 0) return "";
-    return docs.map(doc => ({docName: doc.documentId.name}));
+    let documents = docs.map(doc => ( doc.documentId.name));
+    return documents.toString();
+  }
+
+  getDocNoAttach(docs:any[]){
+    if(docs.length <= 0) return "";
+    let documents = docs.map(doc => ( doc.documentId.name));
+    let noAttach = this.documentTypes.map(type => (type.name)).filter(type => !documents.includes(type));
+    return noAttach.toString();
   }
 
 }
